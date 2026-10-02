@@ -1,4 +1,3 @@
-import io
 import os
 from typing import List
 from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, status
@@ -21,8 +20,6 @@ from document_extractor import (
     extract_text_from_docx,
     extract_text_from_txt,
 )
-import pytesseract
-from PIL import Image
 
 # Create database tables automatically upon startup
 Base.metadata.create_all(bind=engine)
@@ -53,9 +50,6 @@ app.add_middleware(
 # Constants for document validation
 MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB limit
 ALLOWED_FILE_EXTENSIONS = {".pdf", ".docx", ".txt"}
-ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
-
-TESSERACT_EXE = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
 @app.get(
@@ -262,138 +256,6 @@ async def analyze_file_endpoint(
     except Exception as db_err:
         db.rollback()
         print(f"Warning: Failed to save file analysis record to database: {db_err}")
-
-    return FileAnalysisResponse(
-        id=record_id,
-        filename=filename,
-        ai_probability=result["ai_probability"],
-        human_probability=result["human_probability"],
-        details=result["details"],
-    )
-
-
-@app.post(
-    "/api/analyze/image",
-    response_model=FileAnalysisResponse,
-    tags=["Analysis"],
-    summary="Upload and analyze an image (JPG, JPEG, PNG, WEBP) using OCR",
-)
-async def analyze_image_endpoint(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-) -> FileAnalysisResponse:
-    """
-    Accepts a multipart image upload (JPG, JPEG, PNG, WEBP), validates format and size,
-    extracts text via Tesseract OCR, applies the rule-based detector, and persists the record.
-    """
-    # 1. Validate filename and extension
-    if not file.filename:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded file has no filename.",
-        )
-
-    filename = file.filename
-    _, ext = os.path.splitext(filename)
-    ext = ext.lower()
-
-    if ext not in ALLOWED_IMAGE_EXTENSIONS:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Unsupported image format '{ext}'. Allowed formats: JPG, JPEG, PNG, WEBP.",
-        )
-
-    # 2. Read and validate binary content
-    try:
-        content = await file.read()
-    except Exception as read_err:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to read uploaded file: {str(read_err)}",
-        )
-
-    # Check empty file
-    if not content or len(content) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Uploaded file is empty (0 bytes).",
-        )
-
-    # Check maximum file size (10 MB)
-    if len(content) > MAX_FILE_SIZE_BYTES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File size exceeds maximum allowed limit of 10 MB.",
-        )
-
-    # 3. OCR text extraction from the image using Tesseract
-    try:
-        pytesseract.pytesseract.tesseract_cmd = TESSERACT_EXE
-
-        image = Image.open(io.BytesIO(content))
-        extracted_text = pytesseract.image_to_string(image, lang="eng")
-        extracted_text = extracted_text.strip() if extracted_text else ""
-
-    except pytesseract.TesseractError as tess_err:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"OCR failed: {str(tess_err)}",
-        )
-    except Exception as ocr_err:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to process image with OCR: {str(ocr_err)}",
-        )
-
-    # Validate that readable text was extracted
-    if not extracted_text:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No readable text could be extracted from this image. "
-                   "The image may be empty, contain only non-text graphics, "
-                   "or OCR dependencies are unavailable.",
-        )
-
-    # 4. Process extracted text through the existing detection function (reused)
-    try:
-        result = analyze_text(extracted_text)
-    except ValueError as detector_val_err:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(detector_val_err),
-        )
-    except Exception as detector_err:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred during text analysis: {str(detector_err)}",
-        )
-
-    # 5. Create short text preview (never persist entire extracted text)
-    preview = extracted_text[:140] + ("..." if len(extracted_text) > 140 else "")
-
-    # 6. Save result to SQLite database as 'IMAGE' type
-    record_id = None
-    try:
-        details = result["details"]
-        analysis_record = models.Analysis(
-            analysis_type="IMAGE",
-            filename=filename,
-            text_preview=preview,
-            ai_probability=result["ai_probability"],
-            human_probability=result["human_probability"],
-            word_count=details["word_count"],
-            sentence_count=details["sentence_count"],
-            average_sentence_length=details["average_sentence_length"],
-            vocabulary_diversity=details["vocabulary_diversity"],
-            repetition_score=details["repetition_score"],
-        )
-        db.add(analysis_record)
-        db.commit()
-        db.refresh(analysis_record)
-        record_id = analysis_record.id
-    except Exception as db_err:
-        db.rollback()
-        print(f"Warning: Failed to save image analysis record to database: {db_err}")
 
     return FileAnalysisResponse(
         id=record_id,

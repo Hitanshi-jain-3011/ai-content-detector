@@ -3,7 +3,6 @@ import FeatureCard from '../components/FeatureCard';
 import { 
   FileTextIcon, 
   FileUpIcon, 
-  ImageIcon, 
   SparklesIcon, 
   ShieldCheckIcon, 
   CpuIcon 
@@ -24,13 +23,13 @@ export default function HomePage({ setActivePage }) {
         </h1>
         
         <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Scan text passages, uploaded documents, or visual imagery to inspect authenticity and calculate synthetic generation probabilities.
+          Scan text passages and uploaded documents to inspect authenticity and calculate synthetic generation probabilities.
         </p>
       </section>
 
-      {/* 3 Core Cards Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+      {/* Feature Cards Section */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {/* Card 1: Text Detector */}
           <FeatureCard
             title="Text Detector"
@@ -55,19 +54,6 @@ export default function HomePage({ setActivePage }) {
             supportedFormats={['.PDF', '.DOCX', '.TXT']}
             buttonText="Open File Detector"
             onOpen={() => setActivePage('files')}
-          />
-
-          {/* Card 3: Image Detector */}
-          <FeatureCard
-            title="Image Detector"
-            description="Inspect digital pictures, graphics, and art for generative diffusion anomalies, frequency artifacts, and AI signatures."
-            icon={ImageIcon}
-            iconBg="from-violet-600 to-fuchsia-500"
-            badge="Visual Analysis"
-            badgeColor="bg-violet-50 text-violet-700 border-violet-200"
-            supportedFormats={['.JPG', '.JPEG', '.PNG', '.WEBP']}
-            buttonText="Open Image Detector"
-            onOpen={() => setActivePage('images')}
           />
         </div>
       </section>

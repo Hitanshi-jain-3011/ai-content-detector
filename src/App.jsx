@@ -4,14 +4,13 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import TextDetectorPage from './pages/TextDetectorPage';
 import FileDetectorPage from './pages/FileDetectorPage';
-import ImageDetectorPage from './pages/ImageDetectorPage';
 import HistoryPage from './pages/HistoryPage';
 
 export default function App() {
-  // Navigation state: 'home', 'text', 'files', 'images', 'history'
+  // Navigation state: 'home', 'text', 'files', 'history'
   const [activePage, setActivePage] = useState(() => {
     const hash = window.location.hash.replace('#', '').toLowerCase();
-    const validPages = ['home', 'text', 'files', 'images', 'history'];
+    const validPages = ['home', 'text', 'files', 'history'];
     return validPages.includes(hash) ? hash : 'home';
   });
 
@@ -23,7 +22,7 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
-      const validPages = ['home', 'text', 'files', 'images', 'history'];
+      const validPages = ['home', 'text', 'files', 'history'];
       if (validPages.includes(hash)) {
         setActivePage(hash);
       }
@@ -41,8 +40,6 @@ export default function App() {
         return <TextDetectorPage />;
       case 'files':
         return <FileDetectorPage />;
-      case 'images':
-        return <ImageDetectorPage />;
       case 'history':
         return <HistoryPage />;
       default:

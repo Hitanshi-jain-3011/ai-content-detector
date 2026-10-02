@@ -7,7 +7,6 @@ import {
   TrashIcon,
   FileTextIcon, 
   FileUpIcon, 
-  ImageIcon, 
   SearchIcon,
   LoaderIcon,
   AlertCircleIcon
@@ -71,8 +70,6 @@ export default function HistoryPage() {
         ? rawType === 'text'
         : filterType === 'Documents'
         ? rawType === 'pdf' || rawType === 'docx' || rawType === 'file'
-        : filterType === 'Images'
-        ? rawType === 'image'
         : true;
 
     const preview = (item.text_preview || '').toLowerCase();
@@ -103,13 +100,6 @@ export default function HistoryPage() {
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
           <FileUpIcon className="w-3.5 h-3.5" />
           {type.toUpperCase()}
-        </span>
-      );
-    } else if (normalized === 'image') {
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200">
-          <ImageIcon className="w-3.5 h-3.5" />
-          Image
         </span>
       );
     }
@@ -181,7 +171,7 @@ export default function HistoryPage() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Category Tabs */}
         <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
-          {['All', 'Text', 'Documents', 'Images'].map((tab) => (
+          {['All', 'Text', 'Documents'].map((tab) => (
             <button
               key={tab}
               onClick={() => setFilterType(tab)}

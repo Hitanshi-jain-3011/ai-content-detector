@@ -17,7 +17,6 @@ export default function Footer({ setActivePage }) {
           <div className="flex items-center gap-6 text-xs text-slate-500">
             <button onClick={() => setActivePage('text')} className="hover:text-indigo-600 transition-colors">Text</button>
             <button onClick={() => setActivePage('files')} className="hover:text-indigo-600 transition-colors">Files</button>
-            <button onClick={() => setActivePage('images')} className="hover:text-indigo-600 transition-colors">Images</button>
             <button onClick={() => setActivePage('history')} className="hover:text-indigo-600 transition-colors">History</button>
           </div>
 

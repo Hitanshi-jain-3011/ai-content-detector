@@ -72,41 +72,6 @@ export async function analyzeFile(file) {
 }
 
 /**
- * Uploads an image (JPG, JPEG, PNG, WEBP) to the backend for OCR text extraction
- * and AI content analysis.
- *
- * @param {File} file - User selected image File object
- * @returns {Promise<{id: number, filename: string, ai_probability: number, human_probability: number, details: object, extracted_text?: string}>}
- */
-export async function analyzeImage(file) {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await fetch(`${API_BASE_URL}/api/analyze/image`, {
-      method: 'POST',
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const errorMsg = data?.detail || `Image upload failed with status code ${response.status}`;
-      throw new Error(errorMsg);
-    }
-
-    return data;
-  } catch (err) {
-    if (err.name === 'TypeError' && err.message.toLowerCase().includes('fetch')) {
-      throw new Error(
-        'Cannot connect to backend server. Make sure FastAPI is running on http://127.0.0.1:8000'
-      );
-    }
-    throw err;
-  }
-}
-
-/**
  * Retrieves all saved analyses from the database (newest first).
  * 
  * @returns {Promise<Array<object>>}

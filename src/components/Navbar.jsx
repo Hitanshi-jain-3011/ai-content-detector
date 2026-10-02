@@ -3,7 +3,6 @@ import {
   SparklesIcon, 
   FileTextIcon, 
   FileUpIcon, 
-  ImageIcon, 
   HistoryIcon, 
   MenuIcon, 
   XIcon 
@@ -16,7 +15,6 @@ export default function Navbar({ activePage, setActivePage }) {
     { id: 'home', label: 'Home', icon: SparklesIcon },
     { id: 'text', label: 'Text', icon: FileTextIcon },
     { id: 'files', label: 'Files', icon: FileUpIcon },
-    { id: 'images', label: 'Images', icon: ImageIcon },
     { id: 'history', label: 'History', icon: HistoryIcon },
   ];
 
@@ -43,7 +41,7 @@ export default function Navbar({ activePage, setActivePage }) {
                 <span className="font-extrabold text-slate-900 text-lg tracking-tight">AI Content</span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">Detector</span>
               </div>
-              <p className="text-[11px] text-slate-600 font-medium hidden sm:block leading-none">Text • Documents • Images</p>
+              <p className="text-[11px] text-slate-600 font-medium hidden sm:block leading-none">Text • Documents</p>
             </div>
           </div>
 
